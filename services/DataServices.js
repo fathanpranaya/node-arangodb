@@ -1,7 +1,7 @@
 var Database = require('arangojs').Database;
 var db = new Database('http://127.0.0.1:8529');
-db.useDatabase('node-arangodb');
-db.useBasicAuth("root", "");
+db.useDatabase(process.env.DB_NAME);
+db.useBasicAuth(process.env.DB_USER, "");
 
 module.exports = {
     // [GET]: /users

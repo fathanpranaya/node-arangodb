@@ -4,12 +4,8 @@ var service = require('../services/DataServices.js');
 
 /* GET users listing. */
 router.get('/', function (req, res, next) {
-    console.log("↓↓↓↓ Getting User lists ↓↓↓↓");
-    // geting user list from data Service
     service.getAllUsers().then(
         function (list) {
-            console.log(list);
-            //render userlist view with list if user
             res.render('userlist', {"userlist": list});
         },
         function (err) {
@@ -17,7 +13,6 @@ router.get('/', function (req, res, next) {
             res.send("There was a problem adding the information to the database. " + err);
         }
     );
-    //res.send('respond with a resource');
 });
 
 /* GET New User page. */
@@ -27,8 +22,6 @@ router.get('/newuser', function (req, res) {
 
 /* POST to Add User Service */
 router.post('/adduser', function (req, res) {
-    console.log("↓↓↓↓ Add New User ↓↓↓↓");
-    // Get our form values. These rely on the "name" attributes
     var user = {
         "username": req.body.username,
         "email": req.body.useremail
