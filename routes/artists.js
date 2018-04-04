@@ -3,7 +3,6 @@ var request = require('request');
 var getPem = require('rsa-pem-from-mod-exp');
 var jwt = require('jsonwebtoken');
 var router = express.Router();
-var service = require('../services/DataServices.js');
 
 var PKs;
 var URL = 'https://cognito-idp.us-west-2.amazonaws.com/us-west-2_mNtq6o7l0/.well-known/jwks.json';
@@ -45,6 +44,9 @@ router.get('/', function (req, res, next) {
 
         if(decoded) {
             console.log('Decoded successfully: \n' + JSON.stringify(decoded));
+            res.send({
+                username: decoded.username
+            });
         }
     })
 });
