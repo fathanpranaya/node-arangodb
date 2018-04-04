@@ -1,47 +1,48 @@
-var Database = require('arangojs').Database;
-var db = new Database('http://127.0.0.1:8529');
+import Database from 'arangojs';
+
+const db = new Database(process.env.DB_HOST);
 db.useDatabase(process.env.DB_NAME);
 db.useBasicAuth(process.env.DB_USER, process.env.DB_PASS);
 
 module.exports = {
     // [GET]: /users
-    getAllUsers: function () {
+    getAllUsers: () => {
         return db.query('FOR x IN User RETURN x')
-            .then(function (value) {
+            .then((value) => {
                 return value.all();
             });
     },
 
     // [GET]: /users/{userKey}
-    getUserByKey: function (userKey) {
-        var bindVars = {'userKey': userKey};
+    getUserByKey: (userKey) => {
+        const bindVars = {'userKey': userKey};
         return db.query('FOR x IN User FILTER x._key == @userKey RETURN x', bindVars)
-            .then(function (value) {
+            .then((value) => {
                 return value.all();
             });
     },
 
     // [POST]: /users
-    addUser: function (user) {
+    addUser: (user) => {
         return db.collection('User').save(user);
     },
 
     // [POST]: /users/{userKey}/update
-    updateUser: function (user) {
-        var bindVars = {'key': user.key, 'username': user.username, "email": user.email};
+    updateUser: (user) => {
+        const bindVars = {'key': user.key, 'username': user.username, "email": user.email};
 
         return db.query('FOR x IN User FILTER x._key == @key UPDATE x WITH { username:@username, email:@email } IN User', bindVars)
-            .then(function (value) {
+            .then((value) => {
                 return value.all();
             });
     },
 
     // [GET]: /users/{userKey}/delete
-    removeUser: function (userKey) {
-        var bindVars = {'userKey': userKey};
+    removeUser: (userKey) => {
+        const bindVars = {'userKey': userKey};
 
         return db.query('FOR x IN User FILTER x._key == @userKey REMOVE x IN User LET removed = OLD RETURN removed', bindVars)
-            .then(function (value) {
+            .then((value) => {
                 return value.all();
             });
     }

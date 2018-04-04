@@ -1,48 +1,48 @@
-var express = require('express');
-var request = require('request');
-var getPem = require('rsa-pem-from-mod-exp');
-var jwt = require('jsonwebtoken');
-var router = express.Router();
+import express from 'express';
+import request from 'request';
+import getPem from 'rsa-pem-from-mod-exp';
+import jwt from 'jsonwebtoken';
 
-var PKs;
-var URL = 'https://cognito-idp.us-west-2.amazonaws.com/us-west-2_mNtq6o7l0/.well-known/jwks.json';
+const router = express.Router();
+let PKs = [];
+const AWS_COGNITO_PK_URL = process.env.AWS_COGNITO_PK_URL;
 
 /* get public key */
 console.log("Fetch public key...");
-request.get(URL, function(err, response, body) {
-    if(err) {
+request.get(AWS_COGNITO_PK_URL, (err, response, body) => {
+    if (err) {
         console.log('Error while fetching public keys: ' + err);
         return;
     }
 
-    if(body) PKs = JSON.parse(response.body).keys;
+    if (body) PKs = JSON.parse(response.body).keys;
 
     console.log('Fetched: \n' + JSON.stringify(PKs));
 });
 
 /* GET artists listing. */
-router.get('/', function (req, res, next) {
-    var cookie = Object.keys(req.cookies).find(function(cookie) {
-       return cookie.endsWith('accessToken');
+router.get('/', (req, res, next) => {
+    const cookie = Object.keys(req.cookies).find((cookie) => {
+        return cookie.endsWith('accessToken');
     });
 
-    var token = req.cookies[cookie];
+    const token = req.cookies[cookie];
 
-    var decoded = jwt.decode(token, { complete: true });
+    const decoded = jwt.decode(token, {complete: true});
 
-    var PK = PKs.find(function(pk) {
+    const PK = PKs.find((pk) => {
         return pk.kid === decoded.header.kid;
     });
 
-    var pem = getPem(PK.n, PK.e);
+    const pem = getPem(PK.n, PK.e);
 
-    jwt.verify(token, pem, function(err, decoded) {
-        if(err) {
+    jwt.verify(token, pem, (err, decoded) => {
+        if (err) {
             console.error('Something went wrong while verifying:', err);
             res.send("There was a problem verifying the request. " + err);
         }
 
-        if(decoded) {
+        if (decoded) {
             console.log('Decoded successfully: \n' + JSON.stringify(decoded));
             res.send({
                 username: decoded.username
